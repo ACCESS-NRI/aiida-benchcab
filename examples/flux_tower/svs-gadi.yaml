@@ -1,0 +1,56 @@
+computer: gadi
+site_meteorology_path: !RemoteData /g/data/ks32/CLEX_Data/PLUMBER2/v1-0/Met
+experiment: five-site-test
+model_inputs:
+  workflow_plugin: benchcab.flux_tower.svs
+  defaults:
+    base_inputs:
+      model_branch: main
+    lss: svs2
+    svs_code:
+      # Requires registering a code in AiiDA for the SVS executable, e.g.:
+      # verdi code create core.code.installed -n -Y gadi -L svs -X /g/data/tm70/sb8430/svs_install/MESH_SVS/mpi_sa_mesh
+      code: svs
+    preprocess_met:
+      metadata:
+        options:
+          custom_scheduler_commands: |
+            #PBS -l storage=gdata/ks32+gdata/xp65
+          prepend_text: |
+            # Load python3, xarray, and netCDF4 packages:
+            module use /g/data/xp65/public/modules
+            module load conda/analysis3-26.04
+          # Redirect stderr output to prevent AiiDA from interpreting as a
+          # failure:
+          redirect_stderr: True
+    svs_calculation:
+      mesh_input_soil_levels:
+        delz: [0.05, 0.05, 0.1, 0.2, 0.6, 1.0, 1.0]
+        dl_svs: [0.05, 0.1, 0.2, 0.4, 1.0, 2.0, 3.0]
+      metadata:
+        options:
+          custom_scheduler_commands: |
+            #PBS -l storage=gdata/tm70
+    postprocess_output:
+      metadata:
+        options:
+          custom_scheduler_commands: |
+            #PBS -l storage=gdata/xp65
+          prepend_text: |
+            # Load python3, xarray, and netCDF4 packages:
+            module use /g/data/xp65/public/modules
+            module load conda/analysis3-26.04
+          # Redirect stderr output to prevent AiiDA from interpreting as a
+          # failure:
+          redirect_stderr: True
+meorg:
+  output_name: my-model-output
+  metadata:
+    options:
+      custom_scheduler_commands: |
+        #PBS -q copyq
+        #PBS -l storage=gdata/xp65
+      prepend_text: |
+        # Load meorg_client:
+        module use /g/data/xp65/public/modules
+        module load conda/benchcab

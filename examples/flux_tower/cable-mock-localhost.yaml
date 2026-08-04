@@ -1,0 +1,12 @@
+computer: localhost
+site_meteorology_path: !RemoteData /Users/seanbryan/dev_local/cable_inputs/benchcab_forcing
+experiment: AU-Tum
+model_inputs:
+  workflow_plugin: benchcab.flux_tower.cable_mock
+meorg:
+  output_name: my-model-output
+  metadata:
+    options:
+      prepend_text: |
+        # Load meorg_client:
+        eval "$(pixi shell-hook -m /Users/seanbryan/dev_local/pixi_environments/meorg_client)"

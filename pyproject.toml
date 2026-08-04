@@ -1,0 +1,71 @@
+[project]
+name = "aiida-benchcab"
+dynamic = ["version"]
+description = "AiiDA workflows for running and evaluating land surface models."
+authors = [
+    {name = "ACCESS-NRI"},
+    {name = "Climate Change Research Centre (CCRC)"},
+]
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Framework :: AiiDA"
+]
+license = {text = "Apache Software License 2.0"}
+keywords = ["aiida", "plugin"]
+requires-python = ">=3.9"
+dependencies = [
+    "aiida-core>=2.9,<3",
+    # aiida-shell v0.8.2 produces 'AiidaDeprecationWarning:
+    # `InstalledCode.Model` is deprecated, use `InstalledCode.ReadModel` and
+    # `InstalledCode.WriteModel` instead. (this will be removed in v3)'
+    # Temporarily pin to d5a68e0 to fix the warning until next version is
+    # released:
+    "aiida-shell@https://github.com/aiidateam/aiida-shell/archive/d5a68e0.zip",
+    "click",
+    "f90nml",
+    "GitPython",
+    "ruamel.yaml",
+]
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools >= 61.0.0",
+  "versioneer[toml]",
+]
+
+[project.optional-dependencies]
+docs = [
+    "sphinx",
+    "sphinx-click",
+    "sphinx_design",
+    "myst-parser",
+    "tomli >= 2.0.0; python_version < '3.11'",
+]
+
+[project.entry-points."aiida.calculations"]
+"benchcab.models.cable_calculation" = "aiida_benchcab.models.cable.calculations:CableCalculation"
+"benchcab.models.svs_calculation" = "aiida_benchcab.models.svs.calculations:SVSCalculation"
+
+[project.entry-points."aiida.parsers"]
+"benchcab.models.cable_parser" = "aiida_benchcab.models.cable.parsers:CableParser"
+"benchcab.models.svs_parser" = "aiida_benchcab.models.svs.parsers:SVSParser"
+
+[project.entry-points."aiida.workflows"]
+"benchcab.flux_tower.cable" = "aiida_benchcab.models.cable.workflows:CableFluxTowerWorkChain"
+"benchcab.flux_tower.cable_mock" = "aiida_benchcab.models.cable.workflows:MockCableFluxTowerWorkChain"
+"benchcab.flux_tower.svs" = "aiida_benchcab.models.svs.workflows:SVSFluxTowerWorkChain"
+
+[project.scripts]
+"benchcab" = "aiida_benchcab.cli:cli"
+
+[tool.versioneer]
+VCS = "git"
+style = "pep440"
+versionfile_source = "src/aiida_benchcab/_version.py"
+versionfile_build = "aiida_benchcab/_version.py"
+tag_prefix = ""
+parentdir_prefix = "aiida-benchcab-"

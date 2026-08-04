@@ -1,0 +1,29 @@
+computer: gadi
+site_meteorology_path: !RemoteData /g/data/ks32/CLEX_Data/PLUMBER2/v1-0/Met
+experiment: five-site-test
+model_inputs:
+  workflow_plugin: benchcab.flux_tower.cable
+  defaults:
+    cable_code:
+      from_git:
+        branch: main
+    cable_calculation:
+      metadata:
+        options:
+          custom_scheduler_commands: |
+            #PBS -l storage=gdata/ks32
+    postprocess_output:
+      metadata:
+        options:
+          prepend_text: |
+            module load nco/5.0.5
+meorg:
+  output_name: my-model-output
+  metadata:
+    options:
+      custom_scheduler_commands: |
+        #PBS -q copyq
+        #PBS -l storage=gdata/xp65
+      prepend_text: |
+        module use /g/data/xp65/public/modules
+        module load conda/benchcab  # load meorg_client package

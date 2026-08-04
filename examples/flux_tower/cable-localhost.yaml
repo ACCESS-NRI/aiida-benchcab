@@ -1,0 +1,29 @@
+computer: localhost
+site_meteorology_path: !RemoteData /Users/seanbryan/dev_local/cable_inputs/benchcab_forcing
+experiment: five-site-test
+model_inputs:
+  workflow_plugin: benchcab.flux_tower.cable
+  defaults:
+    cable_code:
+      from_git:
+        branch: main
+    cable_calculation:
+      metadata:
+        options:
+          prepend_text: |
+            # Load CABLE dependencies:
+            . /Users/seanbryan/dev_local/spack/1.1/spack/share/spack/setup-env.sh
+            spack load cmake gcc netcdf-fortran
+    postprocess_output:
+      metadata:
+        options:
+          prepend_text: |
+            # Load nco tools:
+            eval "$(pixi shell-hook -m /Users/seanbryan/dev_local/pixi_environments/nco)"
+meorg:
+  output_name: my-model-output
+  metadata:
+    options:
+      prepend_text: |
+        # Load meorg_client:
+        eval "$(pixi shell-hook -m /Users/seanbryan/dev_local/pixi_environments/meorg_client)"

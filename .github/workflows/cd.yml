@@ -1,0 +1,12 @@
+name: Publish python package.
+
+on:
+  release:
+    types: [released]
+
+jobs:
+  publish_python_package:
+    uses: access-nri/actions/.github/workflows/publish-python-package.yml@main
+    secrets: inherit
+    permissions:
+      actions: write

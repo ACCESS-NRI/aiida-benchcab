@@ -1,0 +1,129 @@
+!> TXT (free-format) MESH configuration file.
+!>
+!> See important notes below to use this file for basin configuration (e.g., to run point mode).
+!>  When running in distributed mode, 'npoints' should correspond to the number of GRUs
+!>  determined from the distributed database (LSS or drainage database, depending on operating mode).
+!>  When running in point mode, 'npoints' defines the number of subbasins/simulation points.
+!> See details on this file format here: [LINK]
+
+!> Basin information.
+!> Only a single column (single point) for point mode.
+!> npoints   ----- 1
+deglat         ${deglat} !degrees
+deglng         ${deglng} !degrees
+
+!> Forcing configuration.
+observed_forcing      height !height: uses heights directly.
+!> npoints   ----- 1
+zusl            ${zusl} !m, for momentum
+ztsl            ${ztsl} !m, for temperature/humidity
+
+!> Surface (WATDRN).
+!> npoints   ----- 1
+slop           ${slop} !m m**-1
+draindens ${draindens} !m m**-2
+
+! > Select land surface scheme
+schmsol ${schmsol}
+
+! Water ponding scheme
+lwater_ponding_svs ${lwater_ponding_svs} ! Activate water ponding in SVS2
+watpond                       ${watpond} ! Height in m of ponded water
+
+ ! Macropore scheme
+lmacropores_svs ${lmacropores_svs}
+
+!> Soils.
+soiltext         ${soiltext} !NIL: required to use soil_levels.txt as-is
+!> By default, values for 3 layers are required and only read. The values of the third layer are applied to all deeper layers.
+!> To override this behaviour, activate "NRSOILLAYEREADFLAG" in MESH_input_run_options.ini with an option.
+!> See details here: https://wiki.usask.ca/display/MESH/NRSOILAYEREADFLAG
+!>  Validate the mapping by activating "DIAGNOSEMODE" in MESH_input_run_options.ini.
+!>  A summary of the soil layers, texture values, and mapping are then printed to MESH_output_echo_print.txt.
+!> nlayers   ----- 1 ----- 2 ----- 3 ----- 4 ----- 5 ----- 6 ----- 7
+sand         ${sand} !%
+clay         ${clay} !%
+wsoil        ${wsoil} !vol. content
+isoil        ${isoil} !vol. content
+tpsoil       ${tpsoil} ! soil temperature below bg/lv  (K)
+
+
+!> lower boundary condition for heat diffusion in SVS2: TPERM or 0FLUX
+lbcheat_svs2 ${lbcheat_svs2} !% 0FLUX ; TPERM
+tperm      ${tperm} ! (Deep soil temperature) Kelvin
+
+!> Vegetation canopies.
+!> Map land cover to the most appropriate land cover in SVS.
+!> Values are required for 26 pre-defined categories.
+!> ncanopies ----- 1 ----- 2 ----- 3 ----- 4 ----- 5 ----- 6 ----- 7 ----- 8 ----- 9 ---- 10 ---- 11 ---- 12 ---- 13 ---- 14 ---- 15 ---- 16 ---- 17 ---- 18 ---- 19 ---- 20 ---- 21 ---- 22 ---- 23 ---- 24 ---- 25 ---- 26
+!>               sea glacier in-lake ever-nl ever-bl deci-nl deci-bl trop-bl  dry-tr ever-sh deci-sh thor-sh shor-gr long-gr   crops    rice   sugar   maize  cotton  irr-cr   urban  tundra   swamp  desert mx-tree   mx-sh
+vf               ${vf} !fraction
+
+!> High veg (Skin only)
+!> nlayers   ----- 1
+tvegeh          ${tvegeh} !Kelvin
+!> npoints   ----- 1
+wveg_vh         ${wveg_vh} !kg m**-2
+
+
+!> Low veg (Skin only)
+!> nlayers   ----- 1
+tvegel          ${tvegel} !Kelvin
+!> npoints   ----- 1
+wveg_vl         ${wveg_vl} !kg m**-2
+
+!> Ground temperature below high veg (Skin only)
+!> nlayers   ----- 1
+tgroundv       ${tgroundv} !Kelvin
+
+!> Ground temperature in the open (Skin only)
+!> nlayers   ----- 1
+tground       ${tground} !Kelvin
+
+! Multilayer Snowpack scheme
+nsl     ${nsl} ! Number of snow layers
+hsnowscheme  ${hsnowscheme} ! Selection among CRO and ES
+
+hsnowdrift_cro ${hsnowdrift_cro} ! Option for the snowdrift scheme for Crocus: Mechanical transformation of snow grain and compaction and effect of wind  on falling snow properties
+lsnowdrift_sublim ${lsnowdrift_sublim} !# Activate mass loss due to blowing snow sublimation in ES and Crocus (default TRUE in SVS2)
+hsnowmetamo ${hsnowmetamo} ! Option for the metamorphism scheme for Crocus
+hsnowrad ${hsnowrad} ! Option for the radiative transfer scheme for Crocus
+hsnowfall ${hsnowfall} ! Option for the falling snow density for Crocus
+hsnowcond ${hsnowcond} ! Option for the thermal conductivity scheme for Crocus
+hsnowhold ${hsnowhold} ! Option for the liquid water content scheme for Crocus
+hsnowcomp ${hsnowcomp} ! Option for the compaction scheme for Crocus
+hsnowres ${hsnowres} ! Option for the turbulent fluxes in Crocus
+
+!> Albedo scheme of Gaillard et al. (2025)
+lsnowaging_var ${lsnowaging_var}
+agingcoef ${agingcoef} ! Aging coefficient (in days) used for albedo calculation in visible range (see modd_snow_par)
+
+!> Canopy module SVS
+lsnow_interception_svs2 ${lsnow_interception_svs2} ! Use interception scheme in SVS2
+
+!> Provenance of met forcing for canopy module in SVS2: FOR (forest below canopy)
+! or O2F (from open below canopy height transfered to forest below canopy) or ABV (above canopy)
+cano_ref_forcing ${cano_ref_forcing}
+
+! Specify a canopy cover density (high vegetation)
+VGH_DENS ${VGH_DENS}
+
+! Specify the height of polar low vegetation
+! Only useful for Arctic options in Crocus
+HVEGLPOL ${HVEGLPOL}
+
+! Specify how to manage the minimum MO length under stable conditions (CST, VAR, NON)
+lvar_lmin_stable ${lvar_lmin_stable}
+lmin_stable ${lmin_stable} ! Only used if lvar_lmin_stable = CST
+lmo_winter ${lmo_winter} ! Only used if lvar_lmin_stable = VAR
+
+! Outputs
+lout_snow_profile ${lout_snow_profile} ! Create output file containing detailed information on snowpack layering.
+lout_snow_vegh ${lout_snow_vegh} ! Create output file containing information on the snowpack and forcing in the forest.
+nprofile_day ${nprofile_day} ! Number of snow profiles per day (can be  1, 2, 4, 6, 12, 24)
+lout_snow_enbal ${lout_snow_enbal} ! Create output file containing information about the snowpack energy and mass budget
+lout_svs2_watbal ${lout_svs2_watbal} ! Create output file containing water budget variables
+lout_half_hourly ${lout_half_hourly} ! Enable half hourly output
+
+lwrite_restart ${lwrite_restart} ! Option to write a restart file for SVS2 at the end of the simulation
+lread_restart ${lread_restart} ! Option to read restart information for SVS2/Crocus in MESH_paramater.txt.
