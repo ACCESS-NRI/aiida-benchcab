@@ -18,12 +18,7 @@ keywords = ["aiida", "plugin"]
 requires-python = ">=3.9"
 dependencies = [
     "aiida-core>=2.9,<3",
-    # aiida-shell v0.8.2 produces 'AiidaDeprecationWarning:
-    # `InstalledCode.Model` is deprecated, use `InstalledCode.ReadModel` and
-    # `InstalledCode.WriteModel` instead. (this will be removed in v3)'
-    # Temporarily pin to d5a68e0 to fix the warning until next version is
-    # released:
-    "aiida-shell@https://github.com/aiidateam/aiida-shell/archive/d5a68e0.zip",
+    "aiida-shell>=0.8.2",
     "click",
     "f90nml",
     "GitPython",
