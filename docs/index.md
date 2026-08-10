@@ -9,6 +9,8 @@ supercomputer. With `aiida-benchcab`, workflows can be run on your local
 computer or on a HPC cluster, and can be extended to support other land surface
 models via the AiiDA plugin system.
 
+This is a documentation change!
+
 ```{toctree}
 getting_started
 workflow_reference/index
