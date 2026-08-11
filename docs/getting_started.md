@@ -174,6 +174,11 @@ information on configuring this part of the workflow.
 For real world examples, please see the example configurations provided in the
 [aiida-benchcab repository][aiida-benchcab-flux-tower-examples].
 
+### Cheat Sheet
+
+A cheat sheet containing useful tips, commands and how-tos is available in the
+[`aiida-benchcab` GitHub wiki][aiida-benchcab-cheat-sheet].
+
 [flux-tower]: workflow_reference/flux_tower.md
 [flux-tower-work-chain]: workflow_reference/flux_tower.md#fluxtowerworkchain
 [pip]: https://pip.pypa.io/en/stable/
@@ -181,6 +186,7 @@ For real world examples, please see the example configurations provided in the
 [aiida-quick-installation]: https://aiida.readthedocs.io/projects/aiida-core/en/stable/installation/guide_quick.html
 [aiida-complete-installation]: https://aiida.readthedocs.io/projects/aiida-core/en/stable/installation/guide_complete.html
 [aiida-computer-setup]: https://aiida.readthedocs.io/projects/aiida-core/en/stable/howto/run_codes.html#how-to-set-up-a-computer
+[aiida-benchcab-cheat-sheet]: https://github.com/ACCESS-NRI/aiida-benchcab/wiki/Cheat-Sheet
 [aiida-benchcab-flux-tower-examples]: https://github.com/ACCESS-NRI/aiida-benchcab/blob/main/examples/flux_tower
 [aiida-gadi-scheduler]: https://github.com/ACCESS-NRI/aiida-gadi-scheduler
 [aiida-gadi-scheduler-readme]: https://github.com/ACCESS-NRI/aiida-gadi-scheduler/blob/main/README.md
