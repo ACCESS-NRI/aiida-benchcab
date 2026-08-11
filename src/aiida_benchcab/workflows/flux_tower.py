@@ -478,11 +478,12 @@ class FluxTowerWorkChain(aiida.engine.WorkChain):
             ),
         )
 
+        spec.exit_code(500, "INIT_FAILURE", message="Initialisation failure: {message}")
         spec.exit_code(
-            500, "RUN_FAILURE", message="One or more model runs have failed."
+            600, "RUN_FAILURE", message="One or more model runs have failed."
         )
         spec.exit_code(
-            600,
+            700,
             "MEORG_UPLOAD_FAILURE",
             message="Upload to modelevaluation.org failed: {message}",
         )
@@ -503,7 +504,15 @@ class FluxTowerWorkChain(aiida.engine.WorkChain):
         for site_code in self._BENCHCAB_EXPERIMENTS[self.inputs.experiment.value][
             "site_codes"
         ]:
-            (unique_file,) = fnmatch.filter(files, f"*{site_code}*")
+            try:
+                (unique_file,) = fnmatch.filter(files, f"*{site_code}*")
+            except ValueError as e:
+                return self.exit_codes.INIT_FAILURE.format(
+                    message=(
+                        f"Could not find a unique forcing file for site "
+                        f"{site_code} in {site_meteorology_path}: {e}"
+                    )
+                )
             self.ctx.site_inputs.append(
                 (
                     site_code,
