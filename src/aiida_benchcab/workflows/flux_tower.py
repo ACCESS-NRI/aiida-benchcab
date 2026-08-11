@@ -174,11 +174,14 @@ class FluxTowerBaseWorkChain(aiida.engine.WorkChain, abc.ABC):
             valid_type=aiida.orm.RemoteData,
             help=(
                 "The output file produced by the model run. The output file "
-                "must: 1. be in netCDF format; 2. have a time coordinate variable "
-                "with units in seconds and of double precision type; 3. define "
-                "required global attributes (see "
-                "``FluxTowerBaseWorkChain.get_required_global_attributes``); "
-                "and 4. define the ``units`` variable attribute."
+                "must: 1. be in netCDF format; 2. have an output frequency "
+                "matching the driving data frequency; 3. have a time coordinate "
+                "variable with units in seconds and of double precision type; 4. "
+                "define the required global attributes (see "
+                "``FluxTowerBaseWorkChain.get_required_global_attributes`` for "
+                "more information); and 5. output variables must be named "
+                "following ``https://modelevaluation.org/variableStandards`` and "
+                "include the appropriate ``units`` attribute."
             ),
         )
 
