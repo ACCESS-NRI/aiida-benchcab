@@ -1,0 +1,42 @@
+computer: localhost
+site_meteorology_path: !RemoteData /Users/seanbryan/dev_local/cable_inputs/benchcab_forcing
+experiment: five-site-test
+model_inputs:
+  workflow_plugin: benchcab.flux_tower.cable
+  defaults:
+    cable_calculation:
+      metadata:
+        options:
+          prepend_text: |
+            # Load CABLE dependencies:
+            . /Users/seanbryan/dev_local/spack/1.1/spack/share/spack/setup-env.sh
+            spack load cmake gcc netcdf-fortran
+    postprocess_output:
+      metadata:
+        options:
+          prepend_text: |
+            # Load nco tools:
+            eval "$(pixi shell-hook -m /Users/seanbryan/dev_local/pixi_environments/nco)"
+  realisations:
+    R0:
+      cable_code:
+        from_git:
+          branch: main
+          commit_hash: 41fd8871a68d23c91a63da97fa0a14de11a19aec
+    R1:
+      cable_code:
+        from_git:
+          branch: main
+          commit_hash: b71a64044c3af9e4030e8475bd3125df344752c0
+  science_configurations:
+    S0: {cable_calculation: {cable_namelist_patch: {cable: {cable_user: {GS_SWITCH: medlyn, FWSOIL_SWITCH: Haverd2013}}}}}
+    S1: {cable_calculation: {cable_namelist_patch: {cable: {cable_user: {GS_SWITCH: leuning, FWSOIL_SWITCH: Haverd2013}}}}}
+    S2: {cable_calculation: {cable_namelist_patch: {cable: {cable_user: {GS_SWITCH: medlyn, FWSOIL_SWITCH: standard}}}}}
+    S3: {cable_calculation: {cable_namelist_patch: {cable: {cable_user: {GS_SWITCH: leuning, FWSOIL_SWITCH: standard}}}}}
+meorg:
+  output_name: my-model-output
+  metadata:
+    options:
+      prepend_text: |
+        # Load meorg_client:
+        eval "$(pixi shell-hook -m /Users/seanbryan/dev_local/pixi_environments/meorg_client)"
