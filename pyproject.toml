@@ -57,6 +57,12 @@ docs = [
 [project.scripts]
 "benchcab" = "aiida_benchcab.cli:cli"
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+aiida_benchcab = ["**"]
+
 [tool.versioneer]
 VCS = "git"
 style = "pep440"
