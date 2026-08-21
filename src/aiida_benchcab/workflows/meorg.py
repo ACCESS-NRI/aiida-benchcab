@@ -116,7 +116,7 @@ class MeorgWorkChain(aiida.engine.WorkChain):
             valid_type=bool,
             default=False,
             non_db=True,
-            help="Delete any existing model output files before uploading to modelevaluation.org.",
+            help="Skip the upload of simulation data to modelevaluation.org.",
         )
         spec.outline(
             cls.run_upload_script,
