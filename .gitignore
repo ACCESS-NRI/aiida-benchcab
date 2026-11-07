@@ -109,3 +109,7 @@ ENV/
 # IDE settings
 .vscode/
 .idea/
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+pixi.lock
