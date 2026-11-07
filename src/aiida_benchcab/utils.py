@@ -40,7 +40,8 @@ def load_remote_data(remote_path, computer, check_file_hash=True):
     if check_file_hash:
         with computer.get_transport() as transport:
             return_code, stdout, stderr = transport.exec_command_wait(
-                f"sha256sum {remote_path}"
+                f". /dev/stdin > /dev/null && sha256sum {remote_path}",
+                stdin=computer.get_prepend_text(),
             )
             if return_code == 0:
                 remote_data_filters["extras.sha256"] = stdout.strip()
