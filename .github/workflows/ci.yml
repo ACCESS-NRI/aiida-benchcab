@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v6
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install aiida-benchcab
+      run: python3 -m pip install '.[docs]'
+
+    - name: Setup AiiDA
+      run: verdi presto
+
+    - name: Install PLUMBER2 driving data
+      run: |
+        curl -O https://thredds.nci.org.au/thredds/fileServer/ks32/CLEX_Data/PLUMBER2/v1-0/Met/AU-Tum_2002-2017_OzFlux_Met.nc
+
+    - name: Test mock configuration
+      run: |
+        yq -n '
+          .computer = "localhost" |
+          .site_meteorology_path = strenv(GITHUB_WORKSPACE) |
+          .site_meteorology_path tag = "!RemoteData" |
+          .experiment = "AU-Tum" |
+          .model_inputs.workflow_plugin = "benchcab.flux_tower.cable_mock" |
+          .meorg.output_name = "my-model-output" |
+          .meorg.skip_upload = true
+        ' > config.yml
+        benchcab run -c config.yml
