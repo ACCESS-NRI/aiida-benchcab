@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v6
+
+    # - uses: prefix-dev/setup-pixi@v0.11.3
+    #   with:
+    #     pixi-version: v0.66.0
+    #     cache: true
+    #     # auth-host: prefix.dev
+    #     # auth-token: ${{ secrets.PREFIX_DEV_TOKEN }}
+    # - run: pixi run test
+
+    - name: Set up Spack
+      uses: spack/setup-spack@v3
+      with:
+        buildcache: true
+        spack_ref: releases/v1.0
+        packages_ref: v2025.11.0
+
+    - name: Add access-spack-packages
+      run: spack repo add https://github.com/ACCESS-NRI/access-spack-packages
+
+    - name: Install Cable dependencies
+      run: |
+        spack install cable@git.39d02fa525493d6530900c15ddf6f77bf6073cc8~mpi
+        spack install nco@5.0.1
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install aiida-benchcab
+      run: python3 -m pip install '.[docs]'
+
+    - name: Setup AiiDA
+      run: verdi presto
+
+    - name: Add Cable installation
+      run: verdi code create core.code.installed -n -Y localhost -L cable -X $(spack find --format "{prefix}" cable)/bin/cable
+
+    - name: Install PLUMBER2 driving data
+      run: |
+        curl -O https://thredds.nci.org.au/thredds/fileServer/ks32/CLEX_Data/PLUMBER2/v1-0/Met/AU-Tum_2002-2017_OzFlux_Met.nc
+
+    - name: Test mock configuration
+      run: |
+        yq -n '
+          .computer = "localhost" |
+          .site_meteorology_path = strenv(GITHUB_WORKSPACE) |
+          .site_meteorology_path tag = "!RemoteData" |
+          .experiment = "AU-Tum" |
+          .model_inputs.workflow_plugin = "benchcab.flux_tower.cable" |
+          .model_inputs.defaults.base_inputs.model_branch = "main" |
+          .model_inputs.defaults.cable_code.code = "cable" |
+          .model_inputs.defaults.postprocess_output.metadata.options.prepend_text = ". $(spack location --spack-root)/share/spack/setup-env.sh && spack load nco" |
+          .meorg.output_name = "my-model-output" |
+          .meorg.skip_upload = true
+        ' > config.yml
+        benchcab run -c config.yml
