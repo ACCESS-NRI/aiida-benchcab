@@ -12,9 +12,9 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
 
-    # strategy:
-    #   matrix:
-    #     python-version: ["3.12"]
+    strategy:
+      matrix:
+        python-version: ["3.12"]
 
     steps:
     - name: Checkout source code
@@ -26,36 +26,43 @@ jobs:
         buildcache: true
         spack_ref: releases/v1.0
         packages_ref: v2025.11.0
-        # packages_repository: ACCESS-NRI/access-spack-packages
-    - run: |
-        spack repo add https://github.com/ACCESS-NRI/access-spack-packages
-        spack install cable~mpi
 
-    # - name: Set up Python ${{ matrix.python-version }}
-    #   uses: actions/setup-python@v6
-    #   with:
-    #     python-version: ${{ matrix.python-version }}
-    #     cache: 'pip'
+    - name: Add access-spack-packages
+      run: spack repo add https://github.com/ACCESS-NRI/access-spack-packages
 
-    # - name: Install aiida-benchcab
-    #   run: python3 -m pip install '.[docs]'
+    - name: Install Cable
+      run: |
+        spack install cable@git.39d02fa525493d6530900c15ddf6f77bf6073cc8~mpi
 
-    # - name: Setup AiiDA
-    #   run: verdi presto
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
 
-    # - name: Install PLUMBER2 driving data
-    #   run: |
-    #     curl -O https://thredds.nci.org.au/thredds/fileServer/ks32/CLEX_Data/PLUMBER2/v1-0/Met/AU-Tum_2002-2017_OzFlux_Met.nc
+    - name: Install aiida-benchcab
+      run: python3 -m pip install '.[docs]'
 
-    # - name: Test mock configuration
-    #   run: |
-    #     yq -n '
-    #       .computer = "localhost" |
-    #       .site_meteorology_path = strenv(GITHUB_WORKSPACE) |
-    #       .site_meteorology_path tag = "!RemoteData" |
-    #       .experiment = "AU-Tum" |
-    #       .model_inputs.workflow_plugin = "benchcab.flux_tower.cable_mock" |
-    #       .meorg.output_name = "my-model-output" |
-    #       .meorg.skip_upload = true
-    #     ' > config.yml
-    #     benchcab run -c config.yml
+    - name: Setup AiiDA
+      run: verdi presto
+
+    - name: Add Cable installation
+      run: verdi code create core.code.installed -n -Y localhost -L cable -X $(spack find --format "{prefix}" cable)/bin/cable
+
+    - name: Install PLUMBER2 driving data
+      run: |
+        curl -O https://thredds.nci.org.au/thredds/fileServer/ks32/CLEX_Data/PLUMBER2/v1-0/Met/AU-Tum_2002-2017_OzFlux_Met.nc
+
+    - name: Test mock configuration
+      run: |
+        yq -n '
+          .computer = "localhost" |
+          .site_meteorology_path = strenv(GITHUB_WORKSPACE) |
+          .site_meteorology_path tag = "!RemoteData" |
+          .experiment = "AU-Tum" |
+          .model_inputs.workflow_plugin = "benchcab.flux_tower.cable" |
+          .model_inputs.defaults.cable_code.code = "cable"
+          .meorg.output_name = "my-model-output" |
+          .meorg.skip_upload = true
+        ' > config.yml
+        benchcab run -c config.yml
