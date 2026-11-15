@@ -33,7 +33,7 @@ jobs:
     - name: Install Cable dependencies
       run: |
         spack install cable@git.39d02fa525493d6530900c15ddf6f77bf6073cc8~mpi
-        spack install nco@5.3.9
+        spack install nco@5.0.1
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v6
