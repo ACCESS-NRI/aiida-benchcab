@@ -24,6 +24,8 @@ jobs:
       uses: spack/setup-spack@v3
       with:
         buildcache: true
+        spack_ref: releases/v1.0
+        packages_ref: v2025.11.0
         # packages_repository: ACCESS-NRI/access-spack-packages
     - run: |
         spack repo add https://github.com/ACCESS-NRI/access-spack-packages
