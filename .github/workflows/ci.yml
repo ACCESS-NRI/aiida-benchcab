@@ -63,7 +63,7 @@ jobs:
           .experiment = "AU-Tum" |
           .model_inputs.workflow_plugin = "benchcab.flux_tower.cable" |
           .model_inputs.defaults.cable_code.code = "cable" |
-          .model_inputs.defaults.postprocess_output.metadata.options.prepend_text = ". ${SPACK_ROOT}/share/spack/setup-env.sh && spack load nco" |
+          .model_inputs.defaults.postprocess_output.metadata.options.prepend_text = ". $(spack location --spack-root)/share/spack/setup-env.sh && spack load nco" |
           .meorg.output_name = "my-model-output" |
           .meorg.skip_upload = true
         ' > config.yml
