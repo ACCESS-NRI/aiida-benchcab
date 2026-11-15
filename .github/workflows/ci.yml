@@ -25,7 +25,9 @@ jobs:
       with:
         buildcache: true
         # packages_repository: ACCESS-NRI/access-spack-packages
-    - run: spack install cable
+    - run: |
+        spack repo add https://github.com/ACCESS-NRI/access-spack-packages
+        spack install cable
 
     # - name: Set up Python ${{ matrix.python-version }}
     #   uses: actions/setup-python@v6
