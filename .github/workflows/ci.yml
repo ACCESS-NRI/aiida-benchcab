@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        environment:
+        - py310
+        - py311
+        - py312
+        - py310-cable
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v6
+
+    - uses: prefix-dev/setup-pixi@v0.11.3
+      with:
+        pixi-version: v0.66.0
+        environments: ${{ matrix.environment }}
+        activate-environment: true
+
+    - run: verdi presto
+
+    - name: Install PLUMBER2 driving data
+      run: |
+        curl -O https://thredds.nci.org.au/thredds/fileServer/ks32/CLEX_Data/PLUMBER2/v1-0/Met/AU-Tum_2002-2017_OzFlux_Met.nc
+
+    - name: Run benchcab (${{ matrix.environment }})
+      env:
+        TARGET_ENVIRONMENT: ${{ matrix.environment }}
+      run: |
+        case ${TARGET_ENVIRONMENT} in
+          py310|py311|py312)
+            yq -n '
+              .computer = "localhost" |
+              .site_meteorology_path = strenv(GITHUB_WORKSPACE) |
+              .site_meteorology_path tag = "!RemoteData" |
+              .experiment = "AU-Tum" |
+              .model_inputs.workflow_plugin = "benchcab.flux_tower.cable_mock" |
+              .meorg.output_name = "my-model-output" |
+              .meorg.skip_upload = true
+            ' > config.yml
+            ;;
+          py310-cable)
+            yq -n '
+              .computer = "localhost" |
+              .site_meteorology_path = strenv(GITHUB_WORKSPACE) |
+              .site_meteorology_path tag = "!RemoteData" |
+              .experiment = "AU-Tum" |
+              .model_inputs.workflow_plugin = "benchcab.flux_tower.cable" |
+              .model_inputs.defaults.cable_code.from_git.branch = "main" |
+              .model_inputs.defaults.cable_code.from_git.commit_hash = "58241cde16ef93e943486cdf72d391fd1d032b1b" |
+              .meorg.output_name = "my-model-output" |
+              .meorg.skip_upload = true
+            ' > config.yml
+            ;;
+          *)
+            echo "Unhandled environment: ${TARGET_ENVIRONMENT}"
+            exit 1
+            ;;
+        esac
+        benchcab run -c config.yml
